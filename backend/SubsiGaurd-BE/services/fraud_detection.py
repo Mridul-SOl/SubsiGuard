@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.ensemble import IsolationForest
 from typing import List, Dict, Any, Tuple
-from models.schemas import FraudRecord, AnalysisResult
+from models.schemas import FraudRecord, AnalysisResult, FraudCase, AnalysisSummary
 
 class FraudDetector:
     def __init__(self, contamination: float = 0.08):
@@ -47,20 +47,42 @@ class FraudDetector:
 
         leakage_percent = (flagged_count / len(df)) * 100 if len(df) > 0 else 0
         
-        # Identify high risk states
-        high_risk_states = []
+        # Prepare FraudCase objects
+        fraud_cases = []
+        total_leakage_amount = 0.0
+        total_risk_score = 0
+        
+        for record in results:
+            fraud_cases.append(FraudCase(
+                id=str(record.record_id),
+                beneficiary_name=record.data.get('name', 'Unknown'),
+                scheme=record.data.get('subsidy_type', 'Unknown'),
+                amount=record.data.get('amount', 0.0),
+                risk_score=int(record.fraud_score * 100),
+                fraud_reasons=record.reasons
+            ))
+            total_leakage_amount += record.data.get('amount', 0.0)
+            total_risk_score += int(record.fraud_score * 100)
+
+        average_risk_score = int(total_risk_score / flagged_count) if flagged_count > 0 else 0
+        
+        # Identify top risk state
+        top_risk_state = "N/A"
         if flagged_count > 0:
             flagged_df = pd.DataFrame([r.data for r in results])
             if 'state' in flagged_df.columns:
-                 high_risk_states = flagged_df['state'].value_counts().head(3).index.tolist()
+                 top_risk_state = flagged_df['state'].value_counts().idxmax()
 
         return AnalysisResult(
             file_id=file_id,
-            total_records=len(df),
-            flagged_count=flagged_count,
-            leakage_percent=round(leakage_percent, 2),
-            high_risk_states=high_risk_states,
-            flagged_records=results
+            summary=AnalysisSummary(
+                total_leakage_amount=round(total_leakage_amount, 2),
+                flagged_count=flagged_count,
+                total_records=len(df),
+                average_risk_score=average_risk_score,
+                top_risk_state=top_risk_state
+            ),
+            cases=fraud_cases
         )
 
     def _apply_rules(self, df: pd.DataFrame) -> Dict[int, List[str]]:

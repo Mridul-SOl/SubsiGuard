@@ -26,11 +26,14 @@ async def upload_file(file: UploadFile = File(...), session: AsyncSession = Depe
         file_id = str(uuid.uuid4())
         await data_storage.save_upload(session, file_id, file.filename, df)
         
-        preview = df.head(10).fillna("").to_dict(orient="records")
+        preview_rows = df.head(10).fillna("").to_dict(orient="records")
+        total_rows = len(df)
         
         return UploadResponse(
             file_id=file_id,
-            preview=preview,
+            filename=file.filename,
+            total_rows=total_rows,
+            preview_rows=preview_rows,
             message="File uploaded successfully"
         )
     except Exception as e:

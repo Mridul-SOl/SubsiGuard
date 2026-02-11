@@ -64,9 +64,9 @@ def test_upload_analyze_flow(data):
         response = requests.post(f"{BASE_URL}/analyze", json={"file_id": file_id})
         assert response.status_code == 200
         analyze_resp = response.json()
-        print(f"✅ Analysis Passed. Flagged: {analyze_resp['flagged_count']} / {analyze_resp['total_records']}")
-        print(f"   Leakage: {analyze_resp['leakage_percent']}%")
-        print(f"   High Risk States: {analyze_resp['high_risk_states']}")
+        print(f"✅ Analysis Passed. Flagged: {analyze_resp['summary']['flagged_count']} / {analyze_resp['summary']['total_records']}")
+        print(f"   Leakage: ₹{analyze_resp['summary']['total_leakage_amount']}")
+        print(f"   Top Risk State: {analyze_resp['summary']['top_risk_state']}")
     except Exception as e:
         print(f"❌ Analysis Failed: {e}")
         return

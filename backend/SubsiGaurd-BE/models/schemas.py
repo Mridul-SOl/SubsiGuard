@@ -32,7 +32,9 @@ class AnalysisResultDB(SQLModel, table=True):
 
 class UploadResponse(BaseModel):
     file_id: str
-    preview: List[Dict[str, Any]]
+    filename: str
+    total_rows: int
+    preview_rows: List[Dict[str, Any]]
     message: str
 
 class AnalyzeRequest(BaseModel):
@@ -45,13 +47,25 @@ class FraudRecord(BaseModel):
     is_fraud: bool
     reasons: List[str]
 
+class FraudCase(BaseModel):
+    id: str
+    beneficiary_name: str
+    scheme: str
+    amount: float
+    risk_score: int
+    fraud_reasons: List[str]
+
+class AnalysisSummary(BaseModel):
+    total_leakage_amount: float
+    flagged_count: int
+    total_records: int
+    average_risk_score: int
+    top_risk_state: str
+
 class AnalysisResult(BaseModel):
     file_id: str
-    total_records: int
-    flagged_count: int
-    leakage_percent: float
-    high_risk_states: List[str]
-    flagged_records: List[FraudRecord]
+    summary: AnalysisSummary
+    cases: List[FraudCase]
 
 class SyntheticDataResponse(BaseModel):
     count: int
