@@ -1,0 +1,87 @@
+@config "../tailwind.config.ts";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 158 82% 39%;
+    /* Emerald 600 for primary actions */
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 158 82% 39%;
+
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+html {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  scroll-behavior: smooth;
+}
+
+/* Custom Utilities for Glow Effects */
+.text-glow {
+  text-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+}
+
+.custom-popup .leaflet-popup-content-wrapper {
+  background: #1e293b;
+  color: white;
+  border: 1px solid #334155;
+  border-radius: 8px;
+}
+
+.custom-popup .leaflet-popup-tip {
+  background: #1e293b;
+}
+
+/* Animations */
+@keyframes pulse-subtle {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 3s infinite;
+}
