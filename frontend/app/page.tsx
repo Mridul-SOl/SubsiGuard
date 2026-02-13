@@ -25,7 +25,7 @@ export default function Home() {
       {/* Navbar Overlay - No spacer needed as header is absolute */}
 
       {/* Hero Section */}
-      <section className="relative z-10 pt-40 pb-20 px-4 bg-[url('/hero-bg.png')] bg-cover bg-center bg-no-repeat">
+      <section className="relative z-10 pt-40 pb-40 px-4 bg-[url('/hero-bg.png')] bg-cover bg-center bg-no-repeat">
         {/* Overlay */}
         <div className="absolute inset-0 bg-white/70 z-0"></div>
         <div className="container mx-auto max-w-5xl text-center relative z-10">
@@ -71,7 +71,7 @@ export default function Home() {
       </section>
 
       {/* Impact Stats (Bento Grid) */}
-      <section className="py-20 px-4">
+      <section className="pt-8 pb-20 px-4">
         <div className="container mx-auto max-w-7xl">
           <div className="mb-12 text-center">
             <h2 className="text-3xl font-bold text-slate-900 tracking-tight mb-4">National Impact Overview</h2>
