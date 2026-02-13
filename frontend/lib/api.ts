@@ -51,10 +51,35 @@ export interface LoginResponse {
 
 // --- API Client ---
 
-const API_BASE_URL = "http://127.0.0.1:8000";
+// --- API Client ---
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
+// TOGGLE THIS FOR THE HACKATHON DEMO
+// If your backend isn't deployed, set this to true to use fake data.
+const USE_DEMO_MODE = true;
+
+const mockDelay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const api = {
     async login(username: string, password: string): Promise<LoginResponse> {
+        if (USE_DEMO_MODE) {
+            await mockDelay(1000);
+            if (username && password) { // Accept any creds for demo
+                return {
+                    success: true,
+                    user: {
+                        id: 1,
+                        username: username,
+                        role: "Administrator",
+                        full_name: "Admin User"
+                    },
+                    token: "mock-demo-token-12345",
+                    message: "Login successful (Demo Mode)"
+                };
+            }
+        }
+
         const response = await fetch(`${API_BASE_URL}/auth/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -70,6 +95,23 @@ export const api = {
     },
 
     async uploadFile(file: File): Promise<UploadResponse> {
+        if (USE_DEMO_MODE) {
+            await mockDelay(1500);
+            return {
+                file_id: "demo-file-id-" + Math.random().toString(36).substring(7),
+                filename: file.name,
+                total_rows: 15420,
+                preview_rows: [
+                    { "TransactionID": "TXN88210", "Beneficiary": "Ramesh Kumar", "Amount": 4500, "State": "Uttar Pradesh" },
+                    { "TransactionID": "TXN88211", "Beneficiary": "Sita Devi", "Amount": 4500, "State": "Bihar" },
+                    { "TransactionID": "TXN88212", "Beneficiary": "Abdul Khan", "Amount": 4500, "State": "Maharashtra" },
+                    { "TransactionID": "TXN88213", "Beneficiary": "John Doe", "Amount": 4500, "State": "Kerala" },
+                    { "TransactionID": "TXN88214", "Beneficiary": "Priya Singh", "Amount": 4500, "State": "Punjab" },
+                ],
+                message: "File uploaded successfully (Demo Mode)"
+            };
+        }
+
         const formData = new FormData();
         formData.append("file", file);
 
@@ -87,6 +129,27 @@ export const api = {
     },
 
     async analyzeData(fileId: string): Promise<AnalysisResult> {
+        if (USE_DEMO_MODE) {
+            await mockDelay(2000);
+            return {
+                file_id: fileId,
+                summary: {
+                    total_leakage_amount: 14500000, // 1.45 Cr
+                    flagged_count: 342,
+                    total_records: 15420,
+                    average_risk_score: 78.5,
+                    top_risk_state: "Uttar Pradesh"
+                },
+                cases: [
+                    { id: "CASE-001", beneficiary_name: "Ramesh Kumar", scheme: "PM-KISAN", amount: 6000, risk_score: 95, fraud_reasons: ["Duplicate Beneficiary", "Invalid Land Record"] },
+                    { id: "CASE-002", beneficiary_name: "Sita Devi", scheme: "PDS", amount: 2500, risk_score: 88, fraud_reasons: ["Ghost Beneficiary", "Location Mismatch"] },
+                    { id: "CASE-003", beneficiary_name: "Vikram Singh", scheme: "MGNREGA", amount: 12000, risk_score: 92, fraud_reasons: ["Wage Syphoning", "Impossible Work Hours"] },
+                    { id: "CASE-004", beneficiary_name: "Anita Raj", scheme: "PDS", amount: 1800, risk_score: 85, fraud_reasons: ["Bulk Purchase Anomaly"] },
+                    { id: "CASE-005", beneficiary_name: "Mohammed Ali", scheme: "PM-KISAN", amount: 6000, risk_score: 98, fraud_reasons: ["Deceased Beneficiary Claim"] },
+                ]
+            };
+        }
+
         const response = await fetch(`${API_BASE_URL}/analyze`, {
             method: "POST",
             headers: {
@@ -104,6 +167,11 @@ export const api = {
     },
 
     async getResults(fileId: string): Promise<AnalysisResult> {
+        if (USE_DEMO_MODE) {
+            // Mock data is same as analyze for now
+            return this.analyzeData(fileId);
+        }
+
         const response = await fetch(`${API_BASE_URL}/results/${fileId}`);
 
         if (!response.ok) {
