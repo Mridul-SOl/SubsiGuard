@@ -8,6 +8,7 @@ import { Upload, FileText, CheckCircle2, AlertCircle, Loader2 } from "lucide-rea
 import { toast } from "sonner";
 import { useDropzone } from "react-dropzone";
 import { useRouter } from "next/navigation";
+import { api } from "@/lib/api";
 
 export default function AuditCenterPage() {
     const [file, setFile] = useState<File | null>(null);
@@ -40,25 +41,14 @@ export default function AuditCenterPage() {
         if (!file) return;
 
         setIsUploading(true);
-        const formData = new FormData();
-        formData.append("file", file);
 
         try {
-            const response = await fetch("http://localhost:8000/api/upload", {
-                method: "POST",
-                body: formData,
-            });
-
-            if (!response.ok) throw new Error("Upload failed");
-
-            const data = await response.json();
+            const data = await api.uploadFile(file);
             toast.success("File uploaded successfully. Audit initiated.");
 
-            // Redirect to results page (assuming /results/[id] pattern)
-            // If the backend returns an ID, use it.
-            // Assuming backend response format: { id: "...", filename: "..." }
-            if (data.id) {
-                router.push(`/results/${data.id}`);
+            // Redirect to results page
+            if (data.file_id) {
+                router.push(`/results/${data.file_id}`);
             } else {
                 toast.error("No file ID returned.");
             }
