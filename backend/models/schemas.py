@@ -70,3 +70,20 @@ class AnalysisResult(BaseModel):
 class SyntheticDataResponse(BaseModel):
     count: int
     data: List[Dict[str, Any]]
+
+class User(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    username: str = Field(index=True, unique=True)
+    password_hash: str
+    role: str = Field(default="admin")
+    full_name: Optional[str] = None
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+class LoginResponse(BaseModel):
+    success: bool
+    user: Dict[str, Any]
+    token: str # Simple token for now
+    message: str

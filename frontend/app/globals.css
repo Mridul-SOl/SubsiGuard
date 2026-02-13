@@ -1,10 +1,123 @@
-@config "../tailwind.config.ts";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@plugin "tailwindcss-animate";
+
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  /* GovTech Spec Colors */
+  --color-gov-navy: #002b5c;
+  --color-gov-emerald: #10b981;
+  --color-gov-saffron: #f47321;
+  --color-gov-bg: #f8fafc;
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --shadow-premium: 0 8px 30px rgb(0, 0, 0, 0.04);
+
+  --background-image-soft-blue: linear-gradient(180deg, #2563eb 0%, rgba(37, 99, 235, 0) 100%);
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-ticker: ticker 20s linear infinite;
+
+  @keyframes accordion-down {
+    from {
+      height: 0
+    }
+
+    to {
+      height: var(--radix-accordion-content-height)
+    }
+  }
+
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height)
+    }
+
+    to {
+      height: 0
+    }
+  }
+
+  @keyframes ticker {
+    0% {
+      transform: translateX(100%)
+    }
+
+    100% {
+      transform: translateX(-100%)
+    }
+  }
+}
 
 @layer base {
   :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 212 100% 18%;
+    /* Gov Navy */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 160 84% 39%;
+    /* Gov Emerald */
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 24 90% 54%;
+    /* Gov Saffron */
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 212 100% 18%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
 
@@ -14,8 +127,7 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 158 82% 39%;
-    /* Emerald 600 for primary actions */
+    --primary: 210 40% 98%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
     --secondary: 217.2 32.6% 17.5%;
@@ -32,56 +144,28 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 158 82% 39%;
-
-    --radius: 0.5rem;
+    --ring: 212.7 26.8% 83.9%;
   }
-}
 
-@layer base {
   * {
-    @apply border-border;
+    border-color: var(--color-border);
   }
 
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
   }
 }
 
-html {
-  font-family: var(--font-inter), system-ui, sans-serif;
-  scroll-behavior: smooth;
+@utility glass {
+  background-color: hsl(0 0% 100% / 0.7);
+  backdrop-filter: blur(24px);
+  border: 1px solid hsl(0 0% 100% / 0.4);
 }
 
-/* Custom Utilities for Glow Effects */
-.text-glow {
-  text-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
-}
-
-.custom-popup .leaflet-popup-content-wrapper {
-  background: #1e293b;
-  color: white;
-  border: 1px solid #334155;
-  border-radius: 8px;
-}
-
-.custom-popup .leaflet-popup-tip {
-  background: #1e293b;
-}
-
-/* Animations */
-@keyframes pulse-subtle {
-
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.8;
-  }
-}
-
-.animate-pulse-subtle {
-  animation: pulse-subtle 3s infinite;
+/* Custom Utilities for Leaflet */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  z-index: 0;
 }

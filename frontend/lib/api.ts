@@ -1,93 +1,116 @@
-import { QueryClient } from '@tanstack/react-query';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+// --- Types ---
 
-export interface ApiError {
+export interface UploadResponse {
+    file_id: string;
+    filename: string;
+    total_rows: number;
+    preview_rows: Record<string, any>[];
     message: string;
-    status?: number;
-    details?: unknown;
 }
 
-/**
- * Base fetcher utility for API calls
- */
-export async function fetcher<T>(
-    endpoint: string,
-    options?: RequestInit
-): Promise<T> {
-    const url = `${API_URL}${endpoint}`;
+export interface FraudCase {
+    id: string;
+    beneficiary_name: string;
+    scheme: string;
+    amount: number;
+    risk_score: number;
+    fraud_reasons: string[];
+}
 
-    try {
-        const response = await fetch(url, {
-            ...options,
-            headers: {
-                'Content-Type': 'application/json',
-                ...options?.headers,
-            },
+export interface AnalysisSummary {
+    total_leakage_amount: number;
+    flagged_count: number;
+    total_records: number;
+    average_risk_score: number;
+    top_risk_state: string;
+}
+
+export interface AnalysisResult {
+    file_id: string;
+    summary: AnalysisSummary;
+    cases: FraudCase[];
+}
+
+export interface SyntheticDataResponse {
+    count: number;
+    data: Record<string, any>[];
+}
+
+export interface LoginResponse {
+    success: boolean;
+    user: {
+        id: number;
+        username: string;
+        role: string;
+        full_name: string;
+    };
+    token: string;
+    message: string;
+}
+
+// --- API Client ---
+
+const API_BASE_URL = "http://127.0.0.1:8000";
+
+export const api = {
+    async login(username: string, password: string): Promise<LoginResponse> {
+        const response = await fetch(`${API_BASE_URL}/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password }),
         });
 
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw {
-                message: errorData.message || `HTTP ${response.status}: ${response.statusText}`,
-                status: response.status,
-                details: errorData,
-            } as ApiError;
+            const error = await response.json().catch(() => ({ detail: "Login failed" }));
+            throw new Error(error.detail || "Authentication failed");
         }
 
         return response.json();
-    } catch (error) {
-        if ((error as ApiError).status) {
-            throw error;
+    },
+
+    async uploadFile(file: File): Promise<UploadResponse> {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await fetch(`${API_BASE_URL}/upload`, {
+            method: "POST",
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ detail: "Unknown upload error" }));
+            throw new Error(errorData.detail || `Upload failed: ${response.statusText}`);
         }
-        throw {
-            message: error instanceof Error ? error.message : 'Network error',
-            details: error,
-        } as ApiError;
-    }
-}
 
-/**
- * Upload file to API
- */
-export async function uploadFile(file: File): Promise<{ file_id: string; preview_rows: unknown[] }> {
-    const formData = new FormData();
-    formData.append('file', file);
+        return response.json();
+    },
 
-    const response = await fetch(`${API_URL}/upload`, {
-        method: 'POST',
-        body: formData,
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw {
-            message: errorData.message || 'Upload failed',
-            status: response.status,
-            details: errorData,
-        } as ApiError;
-    }
-
-    return response.json();
-}
-
-/**
- * Create and configure the global QueryClient
- */
-export function createQueryClient() {
-    return new QueryClient({
-        defaultOptions: {
-            queries: {
-                staleTime: 1000 * 60 * 5, // 5 minutes
-                gcTime: 1000 * 60 * 10, // 10 minutes (formerly cacheTime)
-                retry: 1,
-                refetchOnWindowFocus: false,
+    async analyzeData(fileId: string): Promise<AnalysisResult> {
+        const response = await fetch(`${API_BASE_URL}/analyze`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
             },
-            mutations: {
-                retry: 0,
-            },
-        },
-    });
-}
+            body: JSON.stringify({ file_id: fileId }),
+        });
 
-export { API_URL };
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ detail: "Unknown analysis error" }));
+            throw new Error(errorData.detail || `Analysis failed: ${response.statusText}`);
+        }
+
+        return response.json();
+    },
+
+    async getResults(fileId: string): Promise<AnalysisResult> {
+        const response = await fetch(`${API_BASE_URL}/results/${fileId}`);
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ detail: "Unknown fetch error" }));
+            throw new Error(errorData.detail || `Fetching results failed: ${response.statusText}`);
+        }
+
+        return response.json();
+    }
+};
