@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { Search, Menu, Globe, Shield, User, LogOut, X } from "lucide-react";
