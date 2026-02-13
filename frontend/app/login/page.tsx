@@ -44,15 +44,9 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-slate-50 relative overflow-hidden p-4">
-            {/* Background Pattern */}
-            <GridPattern
-                width={40}
-                height={40}
-                x={-1}
-                y={-1}
-                className="opacity-50 text-slate-200 [mask-image:linear-gradient(to_bottom_right,white,transparent,transparent)]"
-            />
+        <div className="flex min-h-screen items-center justify-center bg-[url('/login-bg.png')] bg-cover bg-center bg-no-repeat relative overflow-hidden p-4">
+            {/* Overlay */}
+            <div className="absolute inset-0 bg-white/30 backdrop-blur-[2px] z-0"></div>
 
             <div className="relative z-10 w-full max-w-md">
                 <div className="mb-8 text-center">
