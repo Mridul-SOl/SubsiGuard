@@ -22,11 +22,10 @@ export default function Home() {
         className="opacity-50 text-slate-200 [mask-image:linear-gradient(to_bottom_right,white,transparent,transparent)]"
       />
 
-      {/* Navbar Placeholder (for spacing) - Header is now in Layout */}
-      <div className="h-20"></div>
+      {/* Navbar Overlay - No spacer needed as header is absolute */}
 
       {/* Hero Section */}
-      <section className="relative z-10 pt-20 pb-20 px-4 bg-[url('/hero-bg.png')] bg-cover bg-center bg-no-repeat">
+      <section className="relative z-10 pt-40 pb-20 px-4 bg-[url('/hero-bg.png')] bg-cover bg-center bg-no-repeat">
         {/* Overlay */}
         <div className="absolute inset-0 bg-white/70 z-0"></div>
         <div className="container mx-auto max-w-5xl text-center relative z-10">

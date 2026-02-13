@@ -5,7 +5,7 @@ import { Search, Menu, Globe, Shield, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -16,6 +16,8 @@ import {
 export function OfficialHeader() {
     const { t, language, setLanguage } = useLanguage();
     const router = useRouter();
+    const pathname = usePathname();
+    const isHome = pathname === "/";
     const [fontSize, setFontSize] = useState(1);
     const [user, setUser] = useState<{ full_name: string; role: string } | null>(null);
 
@@ -55,17 +57,17 @@ export function OfficialHeader() {
     };
 
     return (
-        <header className="w-full font-sans" style={{ fontSize: `${fontSize}rem` }}>
+        <header className={`w-full font-sans z-50 transition-all duration-300 ${isHome ? 'absolute top-0 left-0 bg-transparent' : 'relative bg-white'}`} style={{ fontSize: `${fontSize}rem` }}>
             {/* Top Utility Strip */}
-            <div className="bg-slate-100 border-b border-slate-200 py-1 px-4 text-xs font-medium text-slate-600">
+            <div className={`border-b py-1 px-4 text-xs font-medium transition-colors ${isHome ? 'bg-white/60 text-slate-800 border-slate-200/50' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>
                 <div className="container mx-auto flex justify-between items-center">
                     <div className="flex gap-4">
                         <span>GOVERNMENT OF INDIA</span>
-                        <span className="text-slate-400">|</span>
+                        <span className={`${isHome ? 'text-slate-400' : 'text-slate-400'}`}>|</span>
                         <span>भारत सरकार</span>
                     </div>
                     <div className="flex items-center gap-4">
-                        <div className="hidden sm:flex gap-2 items-center border-r border-slate-300 pr-4">
+                        <div className={`hidden sm:flex gap-2 items-center border-r pr-4 ${isHome ? 'border-slate-300/50' : 'border-slate-300'}`}>
                             <button onClick={decreaseFont} className="hover:text-gov-navy font-bold px-1" aria-label="Decrease Font">A-</button>
                             <button onClick={resetFont} className="hover:text-gov-navy font-bold px-1" aria-label="Reset Font">A</button>
                             <button onClick={increaseFont} className="hover:text-gov-navy font-bold px-1" aria-label="Increase Font">A+</button>
@@ -82,7 +84,7 @@ export function OfficialHeader() {
             </div>
 
             {/* Main Navbar */}
-            <div className="bg-white shadow-sm border-b-4 border-gov-saffron">
+            <div className={`shadow-sm border-b-4 transition-all ${isHome ? 'bg-white/80 backdrop-blur-md border-gov-saffron/80' : 'bg-white border-gov-saffron'}`}>
                 <div className="container mx-auto px-4 py-3">
                     <div className="flex justify-between items-center">
                         {/* Logo Section */}
