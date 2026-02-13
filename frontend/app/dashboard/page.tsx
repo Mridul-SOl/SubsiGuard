@@ -34,7 +34,7 @@ import {
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAnalyze } from "@/hooks/useAnalyze";
-import { AnalysisResult } from "@/lib/api";
+import { api, AnalysisResult } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
 
@@ -79,7 +79,7 @@ export default function DashboardPage() {
         }
     };
 
-    const handleExport = () => {
+    const handleExport = async () => {
         if (!result) {
             toast.error("No analysis available", {
                 description: "Please upload and analyze a file first to export the report."
@@ -87,12 +87,20 @@ export default function DashboardPage() {
             return;
         }
 
-        // Trigger download via direct navigation (or creating a temporary link)
-        const exportUrl = `http://127.0.0.1:8000/results/${result.file_id}/export`;
-        window.open(exportUrl, '_blank');
-        toast.success("Export started", {
-            description: "Your report is downloading..."
-        });
+        try {
+            toast.info("Preparing export...", {
+                description: "Generating your report..."
+            });
+            await api.downloadReport(result.file_id);
+            toast.success("Export started", {
+                description: "Your report has been downloaded."
+            });
+        } catch (error) {
+            console.error("Export error:", error);
+            toast.error("Export failed", {
+                description: "Could not generate the report. Please try again."
+            });
+        }
     };
 
     const handleAction = (action: string) => {

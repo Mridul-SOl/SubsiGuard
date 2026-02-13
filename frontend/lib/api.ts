@@ -180,5 +180,42 @@ export const api = {
         }
 
         return response.json();
+    },
+
+    async downloadReport(fileId: string): Promise<void> {
+        if (USE_DEMO_MODE) {
+            await mockDelay(1000);
+            // Create a dummy CSV for demo
+            const csvContent = "data:text/csv;charset=utf-8,"
+                + "TransactionID,Beneficiary,Amount,Status,RiskScore\n"
+                + "TXN88210,Ramesh Kumar,4500,Flagged,95\n"
+                + "TXN88211,Sita Devi,4500,Cleared,12\n"
+                + "TXN88212,Abdul Khan,4500,Flagged,88";
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `subsiguard_audit_${fileId}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            return;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/results/${fileId}/export`);
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ detail: "Unknown export error" }));
+            throw new Error(errorData.detail || `Export failed: ${response.statusText}`);
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `subsiguard_export_${fileId}.csv`); // Assuming CSV
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
     }
 };
