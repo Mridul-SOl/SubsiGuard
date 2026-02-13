@@ -26,8 +26,10 @@ export default function Home() {
       <div className="h-20"></div>
 
       {/* Hero Section */}
-      <section className="relative z-10 pt-20 pb-20 px-4">
-        <div className="container mx-auto max-w-5xl text-center">
+      <section className="relative z-10 pt-20 pb-20 px-4 bg-[url('/hero-bg.png')] bg-cover bg-center bg-no-repeat">
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-white/90 z-0"></div>
+        <div className="container mx-auto max-w-5xl text-center relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
