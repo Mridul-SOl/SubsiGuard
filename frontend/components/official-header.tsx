@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Search, Menu, Globe, Shield, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -89,9 +90,15 @@ export function OfficialHeader() {
                     <div className="flex justify-between items-center">
                         {/* Logo Section */}
                         <Link href="/" className="flex items-center gap-3 group">
-                            {/* Emblem Placeholder */}
-                            <div className="w-10 h-14 bg-slate-200 rounded flex items-center justify-center text-xs text-slate-400">
-                                <span className="text-[0.5rem] text-center leading-tight">National<br />Emblem</span>
+                            {/* Emblem */}
+                            <div className="relative w-10 h-16">
+                                <Image
+                                    src="/emblem.png"
+                                    alt="National Emblem of India"
+                                    fill
+                                    className="object-contain"
+                                    priority
+                                />
                             </div>
                             <div className="flex flex-col">
                                 <h1 className="text-2xl font-bold text-gov-navy leading-none tracking-tight group-hover:text-gov-emerald transition-colors">
