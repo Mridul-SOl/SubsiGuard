@@ -1,19 +1,19 @@
 import pandas as pd
-from sklearn.ensemble import IsolationForest
 from typing import List, Dict, Any, Tuple
 from models.schemas import FraudRecord, AnalysisResult, FraudCase, AnalysisSummary
 
 class FraudDetector:
     def __init__(self, contamination: float = 0.08):
         self.contamination = contamination
-        self.model = IsolationForest(contamination=self.contamination, random_state=42)
+        # No heavy ML model needed for Z-Score analysis
 
     def detect_fraud(self, file_id: str, df: pd.DataFrame) -> AnalysisResult:
         # 1. Rule-Based Detection
         rule_flags = self._apply_rules(df)
         
-        # 2. ML-Based Detection (Isolation Forest)
-        ml_flags, scores = self._apply_ml(df)
+        # 2. Statistical Detection (Z-Score)
+        # Replaces heavy ML model with lightweight stats
+        stat_flags, scores = self._apply_statistical_analysis(df)
         
         # 3. Combine Results
         results = []
@@ -21,20 +21,18 @@ class FraudDetector:
         
         for idx, row in df.iterrows():
             reasons = rule_flags.get(idx, [])
-            is_ml_fraud = ml_flags[idx] == -1 # -1 is anomaly in Isolation Forest
+            is_stat_fraud = stat_flags[idx] == 1 
             
-            if is_ml_fraud:
-                reasons.append("ML Anomaly Detected (Unusual Pattern)")
+            if is_stat_fraud:
+                reasons.append("Statistical Anomaly (High Deviation)")
             
             is_fraud = len(reasons) > 0
             if is_fraud:
                 flagged_count += 1
             
-            # Normalize score to 0-1 range (approximate)
-            # Isolation Forest scores are roughly -0.5 to 0.5, lower is more anomalous
-            # Inverting so higher = more likely fraud
-            normalized_score = 0.5 - scores[idx] 
-            normalized_score = max(0.0, min(1.0, normalized_score)) # Clamp to 0-1
+            # Use the statistical score as the fraud score (clamped 0-1)
+            normalized_score = scores[idx]
+            normalized_score = max(0.0, min(1.0, normalized_score))
 
             if is_fraud:
                  results.append(FraudRecord(
@@ -89,13 +87,16 @@ class FraudDetector:
         flags = {}
         
         # Pre-calculate implementation for speed
-        aadhaar_counts = df['aadhaar'].value_counts()
+        if 'aadhaar' in df.columns:
+            aadhaar_counts = df['aadhaar'].value_counts()
+        else:
+            aadhaar_counts = {}
         
         for idx, row in df.iterrows():
             reasons = []
             
             # Rule 1: Duplicate Aadhaar
-            if aadhaar_counts.get(row['aadhaar'], 0) > 1:
+            if 'aadhaar' in row and aadhaar_counts.get(row['aadhaar'], 0) > 1:
                 reasons.append("Duplicate Aadhaar Number")
             
             # Rule 2: High Income Threshold
@@ -119,15 +120,47 @@ class FraudDetector:
                 
         return flags
 
-    def _apply_ml(self, df: pd.DataFrame) -> Tuple[Any, Any]:
-        # Select numeric features for ML
+    def _apply_statistical_analysis(self, df: pd.DataFrame) -> Tuple[Any, Any]:
+        """
+        Calculates Z-scores for numerical columns to find statistical outliers.
+        This replaces the heavy ML model for Vercel optimization.
+        """
         features = ['amount', 'income']
+        # Initialize flags (0 = normal, 1 = anomaly/fraud)
+        flags = pd.Series(0, index=df.index)
+        # Initialize scores (0.0 to 1.0)
+        scores = pd.Series(0.0, index=df.index)
         
-        # Handle missing or non-numeric data simply for MVP
-        X = df[features].apply(pd.to_numeric, errors='coerce').fillna(0)
-        
-        self.model.fit(X)
-        flags = self.model.predict(X)
-        scores = self.model.decision_function(X)
-        
+        # Ensure we have data
+        if df.empty:
+            return flags, scores
+
+        for feature in features:
+            if feature not in df.columns:
+                continue
+                
+            # Convert to numeric, handle errors
+            series = pd.to_numeric(df[feature], errors='coerce').fillna(0)
+            
+            # Calculate Z-Score: (Value - Mean) / StdDev
+            mean = series.mean()
+            std = series.std()
+            
+            if std == 0:
+                continue
+                
+            z_scores = (series - mean) / std
+            
+            # Flag anything > 3 standard deviations as anomaly
+            # Using bitwise OR to combine flags from multiple features
+            is_outlier = z_scores.abs() > 3
+            flags = flags | is_outlier.astype(int)
+            
+            # Normalize Z-score to 0-1 specific risk contribution
+            # Cap Z-score at 5 for normalization purposes
+            risk_contribution = (z_scores.abs() / 5).clip(0, 1)
+            
+            # Take the max risk score across features
+            scores = pd.concat([scores, risk_contribution], axis=1).max(axis=1)
+
         return flags, scores
