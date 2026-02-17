@@ -26,10 +26,18 @@ export interface AnalysisSummary {
     top_risk_state: string;
 }
 
+export interface AnalysisReportDetails {
+    executive_summary: string;
+    key_findings: string[];
+    recommendations: string[];
+    conclusion: string;
+}
+
 export interface AnalysisResult {
     file_id: string;
     summary: AnalysisSummary;
     cases: FraudCase[];
+    report_details?: AnalysisReportDetails;
 }
 
 export interface SyntheticDataResponse {
@@ -53,7 +61,7 @@ export interface LoginResponse {
 
 // --- API Client ---
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+const API_BASE_URL = "/api";
 
 // TOGGLE THIS FOR THE HACKATHON DEMO
 // If your backend isn't deployed, set this to true to use fake data.
@@ -146,7 +154,28 @@ export const api = {
                     { id: "CASE-003", beneficiary_name: "Vikram Singh", scheme: "MGNREGA", amount: 12000, risk_score: 92, fraud_reasons: ["Wage Syphoning", "Impossible Work Hours"] },
                     { id: "CASE-004", beneficiary_name: "Anita Raj", scheme: "PDS", amount: 1800, risk_score: 85, fraud_reasons: ["Bulk Purchase Anomaly"] },
                     { id: "CASE-005", beneficiary_name: "Mohammed Ali", scheme: "PM-KISAN", amount: 6000, risk_score: 98, fraud_reasons: ["Deceased Beneficiary Claim"] },
-                ]
+                    { id: "CASE-006", beneficiary_name: "Rahul Verma", scheme: "LPG", amount: 900, risk_score: 76, fraud_reasons: ["Multiple Connections", "Income > Threshold"] },
+                    { id: "CASE-007", beneficiary_name: "Sunita Gupta", scheme: "PDS", amount: 3200, risk_score: 82, fraud_reasons: ["Outlier Transaction Pattern"] },
+                    { id: "CASE-008", beneficiary_name: "Amit Shah", scheme: "PM-KISAN", amount: 6000, risk_score: 45, fraud_reasons: ["Data Mismatch (Minor)"] },
+                    { id: "CASE-009", beneficiary_name: "Priya Sharma", scheme: "MGNREGA", amount: 8500, risk_score: 89, fraud_reasons: ["Ghost Worker", "Bank Account Flagged"] },
+                    { id: "CASE-010", beneficiary_name: "Karan Johar", scheme: "LPG", amount: 1200, risk_score: 91, fraud_reasons: ["Commercial Use of Domestic Cylinder"] },
+                ],
+                report_details: {
+                    executive_summary: "The automated audit of the provided beneficiary dataset reveals significant anomalies indicating potential systemic fraud. The hybrid detection engine (Rule-based + Isolation Forest) has flagged 2.2% of the total records as 'High Risk'. The primary drivers of these anomalies appear to be duplicate identity registrations across multiple schemes and income threshold violations. Immediate corrective action is advised to prevent estimated leakage of ₹1.45 Cr.",
+                    key_findings: [
+                        "342 beneficiaries flagged with Risk Score > 80, indicating near-certain fraud.",
+                        "Cluster analysis detected 4 distinct groups of 'Ghost Beneficiaries' sharing identical bank account details.",
+                        "Geographic mismatch found in 12% of PDS claims (claimant location vs. fair price shop location).",
+                        "Income verification API cross-check failed for 89 PM-KISAN recipients."
+                    ],
+                    recommendations: [
+                        "Immediately freeze payments for the 342 high-risk cases pending physical verification.",
+                        "Initiate e-KYC re-verification for the identified cluster of duplicate accounts.",
+                        "Deploy field inspection teams to the 'Uttar Pradesh' and 'Bihar' border districts where geographic mismatches are highest.",
+                        "Integrate real-time bank account validation API to prevent future duplicate entries."
+                    ],
+                    conclusion: "The dataset exhibits a high probability of organized leakage. While the majority of records (97.8%) appear compliant, the concentrated nature of the flagged cases suggests a coordinated attempt to siphon funds. Implementing the recommended freeze and re-verification protocols could save the exchequer approximately ₹1.45 Cr in this cycle alone."
+                }
             };
         }
 
