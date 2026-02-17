@@ -1,4 +1,4 @@
-# 🛡️ SubsiGuard: Subsidy Leakage & Fraud Detection
+\# 🛡️ SubsiGuard: Subsidy Leakage & Fraud Detection
 
 SubsiGuard is an AI-powered dashboard designed to detect leakage and fraud patterns in Indian government subsidy programs (PDS, PM-KISAN, LPG, MGNREGA, etc.). It combines rule-based validation with Machine Learning to identify anomalies and ensure that subsidies reach the intended beneficiaries.
 

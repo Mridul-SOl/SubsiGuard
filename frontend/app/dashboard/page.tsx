@@ -394,7 +394,7 @@ export default function DashboardPage() {
                                     </span>
                                 </div>
 
-                                <BentoGrid className="grid-cols-1 md:grid-cols-2 lg:grid-cols-4 md:auto-rows-[12rem]">
+                                <BentoGrid className="grid-cols-1 md:grid-cols-2 lg:grid-cols-4 md:auto-rows-[13rem]">
                                     <BentoGridItem
                                         title="PDS"
                                         description="Public Distribution System (Food Security)"

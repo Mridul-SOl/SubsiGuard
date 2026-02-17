@@ -64,8 +64,10 @@ export interface LoginResponse {
 const API_BASE_URL = "/api";
 
 // TOGGLE THIS FOR THE HACKATHON DEMO
-// If your backend isn't deployed, set this to true to use fake data.
-const USE_DEMO_MODE = true;
+// Logic: If on Localhost -> Real Backend. If on Vercel -> Demo Mode (to avoid SQLite issues).
+const USE_DEMO_MODE = typeof window !== 'undefined'
+    ? (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1')
+    : true;
 
 const mockDelay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
