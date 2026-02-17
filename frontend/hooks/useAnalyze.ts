@@ -25,10 +25,15 @@ export function useAnalyze() {
             setResult(analysisRes);
             console.log("Analysis successful");
 
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Process failed:", err);
-            setError(err.message || "An unexpected error occurred");
+            // DEBUG LOG
+            console.log("Full error object:", JSON.stringify(err, Object.getOwnPropertyNames(err)));
+
+            const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred";
+            setError(errorMessage);
         } finally {
+            console.log("Process finished, loading set to false");
             setLoading(false);
         }
     };

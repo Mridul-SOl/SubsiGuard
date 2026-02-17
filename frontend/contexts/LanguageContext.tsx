@@ -34,6 +34,8 @@ const translations: Translations = {
         "dash.analyzing": "Analyzing Dataset...",
         "dash.export": "Export Report",
         "dash.welcome": "Welcome Back",
+        "features.title": "Why SubsiGuard?",
+        "features.subtitle": "Advanced technology meets government oversight for a leakage-free subsidy ecosystem.",
     },
     hi: {
         "app.name": "सब्सिडी गार्ड",
@@ -58,6 +60,8 @@ const translations: Translations = {
         "dash.analyzing": "डेटासेट का विश्लेषण हो रहा है...",
         "dash.export": "रिपोर्ट निर्यात करें",
         "dash.welcome": "वापसी पर स्वागत है",
+        "features.title": "सब्सिडी गार्ड क्यों?",
+        "features.subtitle": "लीकेज-मुक्त सब्सिडी पारिस्थितिकी तंत्र के लिए सरकारी निगरानी के साथ उन्नत तकनीक।",
     },
 };
 

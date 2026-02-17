@@ -16,7 +16,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+
 import Link from "next/link";
 import { Eye } from "lucide-react";
 
@@ -106,6 +106,7 @@ export function RecentCasesTable() {
         },
     ];
 
+    // eslint-disable-next-line react-hooks/incompatible-library
     const table = useReactTable({
         data,
         columns,

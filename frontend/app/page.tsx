@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
-import { ArrowRight, FileText, ShieldCheck, AlertTriangle, MapPin } from "lucide-react";
+import { ArrowRight, FileText, ShieldCheck, AlertTriangle, MapPin, CheckCircle, BarChart3, Lock, Upload, Search, FileCheck, Facebook, Twitter, Linkedin, Instagram } from "lucide-react";
 import { motion } from "framer-motion";
 import { GridPattern } from "@/components/ui/grid-pattern";
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
@@ -25,7 +26,7 @@ export default function Home() {
       {/* Navbar Overlay - No spacer needed as header is absolute */}
 
       {/* Hero Section */}
-      <section className="relative z-10 pt-40 pb-40 px-4 bg-[url('/hero-bg.png')] bg-cover bg-center bg-no-repeat">
+      <section className="relative z-10 min-h-screen flex items-center justify-center pt-20 pb-20 px-4 bg-[url('/hero-bg.png')] bg-cover bg-center bg-no-repeat">
         {/* Overlay */}
         <div className="absolute inset-0 bg-white/70 z-0"></div>
         <div className="container mx-auto max-w-5xl text-center relative z-10">
@@ -67,6 +68,102 @@ export default function Home() {
               </Link>
             </div>
           </motion.div>
+        </div>
+      </section>
+
+
+
+      {/* Features Section */}
+      <section className="py-24 bg-white">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">{t('features.title') || "Why SubsiGuard?"}</h2>
+            <p className="text-slate-500 max-w-2xl mx-auto text-lg">
+              {t('features.subtitle') || "Advanced technology meets government oversight for a leakage-free subsidy ecosystem."}
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:shadow-xl transition-all duration-300 group">
+              <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <CheckCircle className="w-7 h-7 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-3">AI-Powered Detection</h3>
+              <p className="text-slate-500 leading-relaxed">
+                Proprietary machine learning models trained on millions of transaction records to identify suspicious patterns, ghost beneficiaries, and anomalies in real-time.
+              </p>
+            </div>
+
+            <div className="p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:shadow-xl transition-all duration-300 group">
+              <div className="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <BarChart3 className="w-7 h-7 text-emerald-600" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-3">Real-time Analytics</h3>
+              <p className="text-slate-500 leading-relaxed">
+                Live dashboard providing instant visibility into disbursement flows, leakage hotspots, and scheme performance across districts and states.
+              </p>
+            </div>
+
+            <div className="p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:shadow-xl transition-all duration-300 group">
+              <div className="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Lock className="w-7 h-7 text-purple-600" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-3">Secure & Compliant</h3>
+              <p className="text-slate-500 leading-relaxed">
+                Enterprise-grade security with end-to-end encryption. Fully compliant with government data protection standards and Aadhaar data vault regulations.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="py-24 bg-slate-50 relative overflow-hidden">
+        <div className="container mx-auto px-4 max-w-7xl relative z-10">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">How It Works</h2>
+            <p className="text-slate-500 max-w-2xl mx-auto text-lg">
+              Streamlined process for rapid audit and verification.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-12 relative">
+            {/* Connector Line (Desktop) */}
+            <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 bg-slate-200 -z-10"></div>
+
+            <div className="text-center">
+              <div className="w-24 h-24 bg-white rounded-full shadow-lg border-4 border-slate-50 mx-auto flex items-center justify-center mb-6 z-10 relative">
+                <Upload className="w-10 h-10 text-blue-600" />
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-blue-600 rounded-full text-white flex items-center justify-center font-bold text-sm border-2 border-white">1</div>
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Upload Data</h3>
+              <p className="text-slate-500 text-sm px-4">
+                Securely upload beneficiary lists (CSV/Excel) or integrate via API for continuous monitoring.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="w-24 h-24 bg-white rounded-full shadow-lg border-4 border-slate-50 mx-auto flex items-center justify-center mb-6 z-10 relative">
+                <Search className="w-10 h-10 text-blue-600" />
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-blue-600 rounded-full text-white flex items-center justify-center font-bold text-sm border-2 border-white">2</div>
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">AI Analysis</h3>
+              <p className="text-slate-500 text-sm px-4">
+                Our advanced algorithms scan for duplicates, ghost accounts, and eligibility mismatches instantly.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="w-24 h-24 bg-white rounded-full shadow-lg border-4 border-slate-50 mx-auto flex items-center justify-center mb-6 z-10 relative">
+                <FileCheck className="w-10 h-10 text-blue-600" />
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-blue-600 rounded-full text-white flex items-center justify-center font-bold text-sm border-2 border-white">3</div>
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Actionable Insights</h3>
+              <p className="text-slate-500 text-sm px-4">
+                Receive detailed audit reports with flagged entries and recommended actions for field verification.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -124,6 +221,63 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="bg-slate-900 text-slate-300 py-12">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <div className="grid md:grid-cols-4 gap-12 mb-12">
+            <div className="col-span-1 md:col-span-1">
+              <h3 className="text-white text-lg font-bold mb-4">{t('app.name')}</h3>
+              <p className="text-sm leading-relaxed text-slate-400 mb-6">
+                Protecting public funds, ensuring they reach the rightful beneficiaries through advanced technology.
+              </p>
+              <div className="flex gap-4">
+                <Link href="#" className="hover:text-white transition-colors"><Twitter className="w-5 h-5" /></Link>
+                <Link href="#" className="hover:text-white transition-colors"><Facebook className="w-5 h-5" /></Link>
+                <Link href="#" className="hover:text-white transition-colors"><Linkedin className="w-5 h-5" /></Link>
+                <Link href="#" className="hover:text-white transition-colors"><Instagram className="w-5 h-5" /></Link>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-white font-semibold mb-6">Quick Links</h4>
+              <ul className="space-y-3 text-sm">
+                <li><Link href="/" className="hover:text-blue-400 transition-colors">Home</Link></li>
+                <li><Link href="/about" className="hover:text-blue-400 transition-colors">About Us</Link></li>
+                <li><Link href="/dashboard" className="hover:text-blue-400 transition-colors">Dashboard</Link></li>
+                <li><Link href="/upload" className="hover:text-blue-400 transition-colors">Audit Center</Link></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-white font-semibold mb-6">Resources</h4>
+              <ul className="space-y-3 text-sm">
+                <li><Link href="#" className="hover:text-blue-400 transition-colors">Documentation</Link></li>
+                <li><Link href="#" className="hover:text-blue-400 transition-colors">API Access</Link></li>
+                <li><Link href="#" className="hover:text-blue-400 transition-colors">Privacy Policy</Link></li>
+                <li><Link href="#" className="hover:text-blue-400 transition-colors">Terms of Service</Link></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-white font-semibold mb-6">Contact</h4>
+              <ul className="space-y-3 text-sm text-slate-400">
+                <li>New Delhi, India</li>
+                <li>support@subsiguard.gov.in</li>
+                <li>+91 11 2345 6789</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
+            <p>&copy; {new Date().getFullYear()} SubsiGuard. All rights reserved. Government of India.</p>
+            <div className="flex gap-6">
+              <span>v1.0.0</span>
+              <span>Security Audited</span>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

@@ -62,10 +62,17 @@ class AnalysisSummary(BaseModel):
     average_risk_score: int
     top_risk_state: str
 
+class AnalysisReportDetails(BaseModel):
+    executive_summary: str
+    key_findings: List[str]
+    recommendations: List[str]
+    conclusion: str
+
 class AnalysisResult(BaseModel):
     file_id: str
     summary: AnalysisSummary
     cases: List[FraudCase]
+    report_details: Optional[AnalysisReportDetails] = None
 
 class SyntheticDataResponse(BaseModel):
     count: int

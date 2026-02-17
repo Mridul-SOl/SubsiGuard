@@ -9,11 +9,14 @@ async def lifespan(app: FastAPI):
     await init_db()
     yield
 
+import os
+
 app = FastAPI(
     title="SubsiGuard Backend",
     description="Backend for SubsiGuard Fraud Detection System",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
+    root_path="/api" if os.environ.get("VERCEL") == "1" else ""
 )
 
 # Configure CORS

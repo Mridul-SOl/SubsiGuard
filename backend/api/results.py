@@ -12,6 +12,38 @@ async def get_results(file_id: str, session: AsyncSession = Depends(get_db)):
     
     if results is None:
         raise HTTPException(status_code=404, detail="Results not found. Please analyze the file first.")
+
+@router.get("/reports/summary")
+async def get_reports_summary(session: AsyncSession = Depends(get_db)):
+    all_results = await data_storage.get_all_results(session)
+    
+    total_audits = 0
+    flagged_count = 0
+    resolved_cases = 0
+    total_leakage = 0.0
+    
+    # Simple aggregation
+    for res in all_results:
+        # Check if result structure matches expected format
+        if "summary" in res:
+            summary = res["summary"]
+            # Assuming 'total_records' corresponds to auditable units/beneficiaries in that file
+            file_records = summary.get("total_records", 0)
+            file_flagged = summary.get("flagged_count", 0)
+            file_leakage = summary.get("total_leakage_amount", 0.0)
+            
+            total_audits += file_records
+            flagged_count += file_flagged
+            total_leakage += file_leakage
+    
+    resolved_cases = total_audits - flagged_count
+    
+    return {
+        "total_audits": total_audits,
+        "critical_issues": flagged_count,
+        "resolved_cases": resolved_cases,
+        "total_leakage": total_leakage
+    }
     
 from fastapi.responses import StreamingResponse
 import pandas as pd

@@ -1,4 +1,4 @@
-import { OfficialHeader } from "@/components/official-header";
+
 import { GlassCard } from "@/components/ui/glass-card";
 
 export default function AboutPage() {

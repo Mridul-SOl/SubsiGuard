@@ -2,11 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GlassCard } from "@/components/ui/glass-card";
-import { GridPattern } from "@/components/ui/grid-pattern";
 import { ArrowRight, Lock, Mail, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
@@ -38,9 +36,10 @@ export default function LoginPage() {
                 });
                 router.push("/dashboard");
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : "Invalid credentials";
             toast.error("Login failed", {
-                description: err.message || "Invalid credentials",
+                description: errorMessage,
             });
             setIsLoading(false);
         }

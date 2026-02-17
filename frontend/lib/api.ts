@@ -65,9 +65,7 @@ const API_BASE_URL = "/api";
 
 // TOGGLE THIS FOR THE HACKATHON DEMO
 // Logic: If on Localhost -> Real Backend. If on Vercel -> Demo Mode (to avoid SQLite issues).
-const USE_DEMO_MODE = typeof window !== 'undefined'
-    ? (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1')
-    : true;
+const USE_DEMO_MODE = process.env.NEXT_PUBLIC_USE_DEMO_MODE === 'true';
 
 const mockDelay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -181,6 +179,7 @@ export const api = {
             };
         }
 
+        console.log("Calling real backend analyze API for fileId:", fileId);
         const response = await fetch(`${API_BASE_URL}/analyze`, {
             method: "POST",
             headers: {
@@ -248,6 +247,27 @@ export const api = {
         document.body.appendChild(link);
         link.click();
         link.remove();
+    },
+
+    async getReportsSummary(): Promise<{ total_audits: number; critical_issues: number; resolved_cases: number; total_leakage: number }> {
+        if (USE_DEMO_MODE) {
+            await mockDelay(1000);
+            return {
+                total_audits: 15420,
+                critical_issues: 342,
+                resolved_cases: 15078,
+                total_leakage: 14500000
+            };
+        }
+
+        const response = await fetch(`${API_BASE_URL}/reports/summary`);
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ detail: "Unknown fetch error" }));
+            throw new Error(errorData.detail || `Fetching summary failed: ${response.statusText}`);
+        }
+
+        return response.json();
     },
 
     logout() {

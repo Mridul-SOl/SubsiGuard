@@ -6,7 +6,13 @@ from typing import AsyncGenerator
 from models.schemas import UploadedFile, AnalysisResultDB  # Import models to register them
 
 # Database URL
-DATABASE_URL = "sqlite+aiosqlite:///./subsiguard.db"
+import os
+IS_VERCEL = os.environ.get("VERCEL") == "1"
+
+if IS_VERCEL:
+    DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+else:
+    DATABASE_URL = "sqlite+aiosqlite:///./subsiguard.db"
 
 # Create Async Engine
 # check_same_thread=False is needed for SQLite

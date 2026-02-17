@@ -1,15 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
     Download,
-    CheckCircle2,
     AlertTriangle,
-    FileText,
     Share2,
     Printer,
     ChevronLeft
@@ -81,6 +79,7 @@ export default function CaseResultPage() {
             headStyles: { fillColor: [0, 43, 92] }
         });
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const finalY: any = (doc as any).lastAutoTable.finalY || 150;
 
         // Footer
@@ -208,7 +207,7 @@ export default function CaseResultPage() {
                             <Button className="w-full bg-white text-gov-navy hover:bg-slate-100 font-bold">
                                 Mark as Verified
                             </Button>
-                            <Button variant="outline" className="w-full border-white/20 text-white hover:bg-white/10 hover:text-white">
+                            <Button className="w-full bg-transparent border border-white/30 text-white hover:bg-white/10 font-medium">
                                 Dismiss Alert
                             </Button>
                         </CardContent>

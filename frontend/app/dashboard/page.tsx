@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { GlassCard } from "@/components/ui/glass-card";
 import { GridPattern } from "@/components/ui/grid-pattern";
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
@@ -30,7 +30,6 @@ import {
     Search,
     Bell,
     User,
-    Filter,
     Download,
     AlertCircle,
     Loader2,
@@ -42,7 +41,7 @@ import {
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAnalyze } from "@/hooks/useAnalyze";
-import { api, AnalysisResult } from "@/lib/api";
+import { api } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
 
@@ -62,19 +61,30 @@ const timeData = [
     { date: "Jun", amount: 2390 },
 ];
 
+import { AuthGuard } from "@/components/auth-guard";
+
 export default function DashboardPage() {
     const router = useRouter();
     const { t } = useLanguage();
     const [activeTab, setActiveTab] = React.useState("Overview");
 
-    React.useEffect(() => {
-        const isAuthenticated = localStorage.getItem("isAuthenticated");
-        if (!isAuthenticated) {
-            router.push("/login");
-        }
-    }, [router]);
+    // Auth check moved to AuthGuard wrapper
+
+    return (
+        <AuthGuard>
+            <DashboardContent
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                t={t}
+                router={router}
+            />
+        </AuthGuard>
+    );
+}
+
+function DashboardContent({ activeTab, setActiveTab, t, router }: any) {
     const fileInputRef = React.useRef<HTMLInputElement>(null);
-    const { loading, error, result, processFile, reset } = useAnalyze();
+    const { loading, result, processFile, reset } = useAnalyze();
 
     const handleUploadClick = () => {
         fileInputRef.current?.click();
@@ -111,9 +121,7 @@ export default function DashboardPage() {
         }
     };
 
-    const handleAction = (action: string) => {
-        alert(`${action} feature coming soon!`);
-    };
+
 
     // Transform API result for charts
     const chartData = React.useMemo(() => {
@@ -200,7 +208,7 @@ export default function DashboardPage() {
                 <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-slate-100 px-8 py-5 flex justify-between items-center">
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{activeTab}</h1>
-                        <p className="text-sm text-slate-500">Welcome back, Auditor. Here is today's subsidy leakage report.</p>
+                        <p className="text-sm text-slate-500">Welcome back, Auditor. Here is today&apos;s subsidy leakage report.</p>
                     </div>
                     <div className="flex items-center gap-4">
                         <button
@@ -218,7 +226,7 @@ export default function DashboardPage() {
                 </header>
 
                 <div className="p-8 max-w-[1600px] mx-auto space-y-8 relative pb-20">
-                    {activeTab === "Overview" ? (
+                    {activeTab === "Overview" && (
                         <>
                             {/* 1. Upload Section (Full Width, Top) */}
                             <GlassCard className="p-8 border-blue-100 bg-gradient-to-br from-white to-blue-50/30">
@@ -295,70 +303,7 @@ export default function DashboardPage() {
 
 
                             {/* 2. Detailed Analysis Table (Shadcn) - MOVED UP */}
-                            {result && (
-                                <div className="space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                                            <FileText className="w-5 h-5 text-blue-600" />
-                                            Detailed Analysis Report
-                                        </h2>
-                                        <span className="text-sm text-slate-500">Showing top 10 high-risk cases</span>
-                                    </div>
 
-                                    <GlassCard className="overflow-hidden p-0 border-slate-200">
-                                        <Table>
-                                            <TableHeader className="bg-slate-50">
-                                                <TableRow>
-                                                    <TableHead className="w-[100px]">Case ID</TableHead>
-                                                    <TableHead>Beneficiary</TableHead>
-                                                    <TableHead>Scheme</TableHead>
-                                                    <TableHead>Amount</TableHead>
-                                                    <TableHead>Fraud Reasons (AI Detected)</TableHead>
-                                                    <TableHead className="text-right">Risk Score</TableHead>
-                                                </TableRow>
-                                            </TableHeader>
-                                            <TableBody>
-                                                {result.cases.map((fraudCase) => (
-                                                    <TableRow key={fraudCase.id} className="group hover:bg-slate-50">
-                                                        <TableCell className="font-medium text-slate-900">{fraudCase.id}</TableCell>
-                                                        <TableCell>{fraudCase.beneficiary_name}</TableCell>
-                                                        <TableCell>
-                                                            <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${fraudCase.scheme === 'PM-KISAN' ? 'bg-emerald-50 text-emerald-700' :
-                                                                fraudCase.scheme === 'PDS' ? 'bg-blue-50 text-blue-700' :
-                                                                    'bg-orange-50 text-orange-700'
-                                                                }`}>
-                                                                {fraudCase.scheme}
-                                                            </span>
-                                                        </TableCell>
-                                                        <TableCell>₹{fraudCase.amount.toLocaleString()}</TableCell>
-                                                        <TableCell>
-                                                            <div className="flex flex-wrap gap-1">
-                                                                {fraudCase.fraud_reasons.map((reason, idx) => (
-                                                                    <span key={idx} className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-red-50 text-red-600 border border-red-100">
-                                                                        {reason}
-                                                                    </span>
-                                                                ))}
-                                                            </div>
-                                                        </TableCell>
-                                                        <TableCell className="text-right">
-                                                            <div className="flex items-center justify-end gap-2">
-                                                                <span className={`font-bold ${fraudCase.risk_score > 80 ? "text-red-600" :
-                                                                    fraudCase.risk_score > 50 ? "text-orange-500" : "text-slate-600"
-                                                                    }`}>
-                                                                    {fraudCase.risk_score}/100
-                                                                </span>
-                                                                <div className={`w-2 h-2 rounded-full ${fraudCase.risk_score > 80 ? "bg-red-500 animate-pulse" :
-                                                                    fraudCase.risk_score > 50 ? "bg-orange-400" : "bg-slate-300"
-                                                                    }`}></div>
-                                                            </div>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))}
-                                            </TableBody>
-                                        </Table>
-                                    </GlassCard>
-                                </div>
-                            )}
 
                             {/* 3. AI Analysis Summary - NEW SECTION */}
                             {result && (
@@ -558,6 +503,8 @@ export default function DashboardPage() {
 
 
 
+
+
                             {/* 5. Final Audit Report Details (Textual) */}
                             {result?.report_details && (
                                 <GlassCard className="p-8 border-slate-200 bg-white shadow-sm">
@@ -621,25 +568,246 @@ export default function DashboardPage() {
                                         <section className="pt-4 border-t border-slate-100">
                                             <h3 className="text-lg font-bold text-slate-900 mb-2">Conclusion</h3>
                                             <p className="text-slate-600 leading-relaxed text-sm font-medium italic">
-                                                "{result.report_details.conclusion}"
+                                                &quot;{result.report_details.conclusion}&quot;
                                             </p>
                                         </section>
                                     </div>
                                 </GlassCard>
                             )}
+
+                            {/* 2. Detailed Analysis Table (Shadcn) - MOVED TO END */}
+                            {result && (
+                                <div className="space-y-4 pt-8 border-t border-slate-100">
+                                    <div className="flex items-center justify-between">
+                                        <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                                            <FileText className="w-5 h-5 text-blue-600" />
+                                            Detailed Analysis Report
+                                        </h2>
+                                        <span className="text-sm text-slate-500">Showing top 10 high-risk cases</span>
+                                    </div>
+
+                                    <GlassCard className="overflow-hidden p-0 border-slate-200">
+                                        <Table>
+                                            <TableHeader className="bg-slate-50">
+                                                <TableRow>
+                                                    <TableHead className="w-[100px]">Case ID</TableHead>
+                                                    <TableHead>Beneficiary</TableHead>
+                                                    <TableHead>Scheme</TableHead>
+                                                    <TableHead>Amount</TableHead>
+                                                    <TableHead>Fraud Reasons (AI Detected)</TableHead>
+                                                    <TableHead className="text-right">Risk Score</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {result.cases.map((fraudCase) => (
+                                                    <TableRow key={fraudCase.id} className="group hover:bg-slate-50">
+                                                        <TableCell className="font-medium text-slate-900">{fraudCase.id}</TableCell>
+                                                        <TableCell>{fraudCase.beneficiary_name}</TableCell>
+                                                        <TableCell>
+                                                            <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${fraudCase.scheme === 'PM-KISAN' ? 'bg-emerald-50 text-emerald-700' :
+                                                                fraudCase.scheme === 'PDS' ? 'bg-blue-50 text-blue-700' :
+                                                                    'bg-orange-50 text-orange-700'
+                                                                }`}>
+                                                                {fraudCase.scheme}
+                                                            </span>
+                                                        </TableCell>
+                                                        <TableCell>₹{fraudCase.amount.toLocaleString()}</TableCell>
+                                                        <TableCell>
+                                                            <div className="flex flex-wrap gap-1">
+                                                                {fraudCase.fraud_reasons.map((reason, idx) => (
+                                                                    <span key={idx} className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-red-50 text-red-600 border border-red-100">
+                                                                        {reason}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell className="text-right">
+                                                            <div className="flex items-center justify-end gap-2">
+                                                                <span className={`font-bold ${fraudCase.risk_score > 80 ? "text-red-600" :
+                                                                    fraudCase.risk_score > 50 ? "text-orange-500" : "text-slate-600"
+                                                                    }`}>
+                                                                    {fraudCase.risk_score}/100
+                                                                </span>
+                                                                <div className={`w-2 h-2 rounded-full ${fraudCase.risk_score > 80 ? "bg-red-500 animate-pulse" :
+                                                                    fraudCase.risk_score > 50 ? "bg-orange-400" : "bg-slate-300"
+                                                                    }`}></div>
+                                                            </div>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </GlassCard>
+                                </div>
+                            )}
                         </>
-                    ) : (
-                        <div className="min-h-[60vh] flex flex-col items-center justify-center text-center">
-                            <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6">
-                                <Search className="w-10 h-10 text-slate-300" />
+                    )}
+
+                    {activeTab === "Investigations" && (
+                        <div className="space-y-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h2 className="text-xl font-bold text-slate-900">Active Investigations</h2>
+                                    <p className="text-sm text-slate-500">Manage and track high-priority fraud cases.</p>
+                                </div>
+                                <div className="flex gap-3">
+                                    <button className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50">Filter</button>
+                                    <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">Assign New Case</button>
+                                </div>
                             </div>
-                            <h2 className="text-2xl font-bold text-slate-900 mb-2">{activeTab} Section</h2>
-                            <p className="text-slate-500 max-w-md mx-auto">This module is part of the premium SubsiGuard suite and will be available shortly.</p>
-                            <button
-                                onClick={() => setActiveTab("Overview")}
-                                className="mt-8 px-6 py-3 bg-white border border-slate-200 text-slate-600 font-bold rounded-full hover:bg-slate-50 transition-colors"
-                            >
-                                Return to Overview
+
+                            <GlassCard className="overflow-hidden p-0 border-slate-200">
+                                <Table>
+                                    <TableHeader className="bg-slate-50">
+                                        <TableRow>
+                                            <TableHead>Case ID</TableHead>
+                                            <TableHead>Status</TableHead>
+                                            <TableHead>Assigned To</TableHead>
+                                            <TableHead>Priority</TableHead>
+                                            <TableHead>Deadline</TableHead>
+                                            <TableHead className="text-right">Actions</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {[
+                                            { id: "INV-2024-001", status: "In Progress", assignee: "Officer Sharma", priority: "High", deadline: "2 Days" },
+                                            { id: "INV-2024-002", status: "Pending Review", assignee: "Officer Verma", priority: "Medium", deadline: "5 Days" },
+                                            { id: "INV-2024-003", status: "Field Visit", assignee: "Officer Singh", priority: "Critical", deadline: "Today" },
+                                            { id: "INV-2024-004", status: "In Progress", assignee: "Officer Das", priority: "High", deadline: "3 Days" },
+                                            { id: "INV-2024-005", status: "Closed", assignee: "Officer Nair", priority: "Low", deadline: "-" },
+                                        ].map((inv) => (
+                                            <TableRow key={inv.id}>
+                                                <TableCell className="font-medium">{inv.id}</TableCell>
+                                                <TableCell>
+                                                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${inv.status === 'Critical' ? 'bg-red-50 text-red-700' :
+                                                        inv.status === 'In Progress' ? 'bg-blue-50 text-blue-700' :
+                                                            inv.status === 'Closed' ? 'bg-slate-100 text-slate-700' :
+                                                                'bg-orange-50 text-orange-700'
+                                                        }`}>
+                                                        {inv.status}
+                                                    </span>
+                                                </TableCell>
+                                                <TableCell>{inv.assignee}</TableCell>
+                                                <TableCell>
+                                                    <span className={`font-bold ${inv.priority === 'Critical' ? 'text-red-600' :
+                                                        inv.priority === 'High' ? 'text-orange-600' :
+                                                            'text-slate-600'
+                                                        }`}>{inv.priority}</span>
+                                                </TableCell>
+                                                <TableCell>{inv.deadline}</TableCell>
+                                                <TableCell className="text-right">
+                                                    <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">View Details</button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </GlassCard>
+                        </div>
+                    )}
+
+                    {activeTab === "Alerts" && (
+                        <div className="space-y-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h2 className="text-xl font-bold text-slate-900">System Alerts</h2>
+                                    <p className="text-sm text-slate-500">Real-time notifications and system warnings.</p>
+                                </div>
+                                <button className="text-sm text-blue-600 hover:underline">Mark all as read</button>
+                            </div>
+
+                            <div className="space-y-4">
+                                {[
+                                    { title: "Unusual Spike in PDS Claims", time: "2 hours ago", type: "critical", desc: "Detected 40% increase in claims from District A within 1 hour." },
+                                    { title: "Database Backup Completed", time: "5 hours ago", type: "info", desc: "Daily incremental backup successful." },
+                                    { title: "New Fraud Pattern Detected", time: "Yesterday", type: "warning", desc: "AI model identified a new signature for 'Ghost Beneficiary' in PM-KISAN." },
+                                    { title: "API Latency Warning", time: "Yesterday", type: "warning", desc: "Response time > 2000ms for /analyze endpoint." },
+                                ].map((alert, i) => (
+                                    <GlassCard key={i} className="p-4 flex gap-4 items-start">
+                                        <div className={`p-2 rounded-full ${alert.type === 'critical' ? 'bg-red-100 text-red-600' :
+                                            alert.type === 'warning' ? 'bg-orange-100 text-orange-600' :
+                                                'bg-blue-100 text-blue-600'
+                                            }`}>
+                                            <Bell className="w-5 h-5" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="flex justify-between items-start">
+                                                <h3 className="font-bold text-slate-900">{alert.title}</h3>
+                                                <span className="text-xs text-slate-400">{alert.time}</span>
+                                            </div>
+                                            <p className="text-sm text-slate-500 mt-1">{alert.desc}</p>
+                                        </div>
+                                    </GlassCard>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === "Profile" && (
+                        <div className="max-w-2xl mx-auto space-y-8">
+                            <div className="text-center">
+                                <div className="w-24 h-24 bg-blue-100 rounded-full mx-auto flex items-center justify-center text-blue-600 text-3xl font-bold mb-4">JD</div>
+                                <h2 className="text-2xl font-bold text-slate-900">John Doe</h2>
+                                <p className="text-slate-500">Senior Auditor, Department of Social Welfare</p>
+                            </div>
+
+                            <GlassCard className="p-6">
+                                <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                                    <User className="w-5 h-5 text-blue-600" />
+                                    Account Details
+                                </h3>
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 py-3 border-b border-slate-50">
+                                        <span className="text-slate-500 text-sm">Full Name</span>
+                                        <span className="text-slate-900 font-medium text-sm">John Doe</span>
+                                    </div>
+                                    <div className="grid grid-cols-2 py-3 border-b border-slate-50">
+                                        <span className="text-slate-500 text-sm">Email Address</span>
+                                        <span className="text-slate-900 font-medium text-sm">john.doe@gov.in</span>
+                                    </div>
+                                    <div className="grid grid-cols-2 py-3 border-b border-slate-50">
+                                        <span className="text-slate-500 text-sm">Role</span>
+                                        <span className="text-slate-900 font-medium text-sm">Administrator</span>
+                                    </div>
+                                    <div className="grid grid-cols-2 py-3 border-b border-slate-50">
+                                        <span className="text-slate-500 text-sm">Department</span>
+                                        <span className="text-slate-900 font-medium text-sm">Audit & Vigilance</span>
+                                    </div>
+                                    <div className="grid grid-cols-2 py-3">
+                                        <span className="text-slate-500 text-sm">Last Login</span>
+                                        <span className="text-slate-900 font-medium text-sm">Today, 10:42 AM</span>
+                                    </div>
+                                </div>
+                            </GlassCard>
+
+                            <GlassCard className="p-6">
+                                <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                                    <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                                    Security Settings
+                                </h3>
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between py-2">
+                                        <div>
+                                            <div className="text-slate-900 font-medium text-sm">Two-Factor Authentication</div>
+                                            <div className="text-slate-500 text-xs">Enabled via SMS</div>
+                                        </div>
+                                        <button className="text-blue-600 text-sm font-medium hover:underline">Manage</button>
+                                    </div>
+                                    <div className="flex items-center justify-between py-2">
+                                        <div>
+                                            <div className="text-slate-900 font-medium text-sm">Change Password</div>
+                                            <div className="text-slate-500 text-xs">Last changed 30 days ago</div>
+                                        </div>
+                                        <button className="text-blue-600 text-sm font-medium hover:underline">Update</button>
+                                    </div>
+                                </div>
+                            </GlassCard>
+
+                            <button onClick={() => {
+                                localStorage.removeItem("isAuthenticated");
+                                router.push("/login");
+                            }} className="w-full py-3 text-red-600 font-medium hover:bg-red-50 rounded-xl transition-colors">
+                                Sign Out
                             </button>
                         </div>
                     )}

@@ -1,7 +1,7 @@
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from models.schemas import UploadedFile, AnalysisResultDB
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 import pandas as pd
 import json
 
@@ -45,5 +45,10 @@ class DataStorageService:
         if db_result:
             return db_result.result
         return None
+
+    async def get_all_results(self, session: AsyncSession) -> List[Dict[str, Any]]:
+        statement = select(AnalysisResultDB)
+        results = await session.exec(statement)
+        return [db_result.result for db_result in results.all()]
 
 data_storage = DataStorageService()

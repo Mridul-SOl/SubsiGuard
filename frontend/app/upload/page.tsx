@@ -10,15 +10,20 @@ import { useDropzone } from "react-dropzone";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 
+import { AuthGuard } from "@/components/auth-guard";
+
 export default function AuditCenterPage() {
+    return (
+        <AuthGuard>
+            <AuditCenterContent />
+        </AuthGuard>
+    );
+}
+
+
+function AuditCenterContent() {
     const [file, setFile] = useState<File | null>(null);
     const router = useRouter();
-
-    // Mocking the hook for now if it doesn't exist, need to check if I need to implement it fully.
-    // Actually, I should use the real one if possible but since I can't read it (upload didn't exist), maybe hooks folder has it?
-    // I saw hooks folder earlier. Let's assume standard fetch for now or use the hook if valid.
-    // For safety, I'll implement a local upload function here using fetch directly to /api/upload.
-
     const [isUploading, setIsUploading] = useState(false);
 
     const onDrop = (acceptedFiles: File[]) => {
@@ -54,7 +59,7 @@ export default function AuditCenterPage() {
             }
         } catch (error) {
             console.error(error);
-            toast.error("Failed to upload file. Please try again.");
+            toast.error("Failed to process file. Please try again.");
         } finally {
             setIsUploading(false);
         }
@@ -67,7 +72,7 @@ export default function AuditCenterPage() {
                 <p className="text-slate-600">Submit beneficiary data for automated leakage detection and compliance verification.</p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-3 gap-8 mb-12">
                 {/* Upload Column */}
                 <div className="md:col-span-2">
                     <Card className="border-slate-200 shadow-sm">
@@ -169,6 +174,8 @@ export default function AuditCenterPage() {
                     </Card>
                 </div>
             </div>
+
+
         </div>
     );
 }

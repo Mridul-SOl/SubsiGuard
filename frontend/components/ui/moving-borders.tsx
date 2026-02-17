@@ -22,6 +22,7 @@ export function MovingBorder({
     containerClassName?: string;
     borderRadius?: string;
 }) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pathRef = useRef<any>(null);
     const progress = useMotionValue<number>(0);
 
