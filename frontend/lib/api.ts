@@ -246,5 +246,12 @@ export const api = {
         document.body.appendChild(link);
         link.click();
         link.remove();
+    },
+
+    logout() {
+        localStorage.removeItem("isAuthenticated");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.dispatchEvent(new Event("auth-change"));
     }
 };

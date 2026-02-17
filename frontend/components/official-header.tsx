@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useRouter, usePathname } from "next/navigation";
+import { api } from "@/lib/api";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -31,13 +32,29 @@ export function OfficialHeader() {
     // Authentication Check
     useEffect(() => {
         const checkAuth = () => {
-            // ... existing code ...
+            const storedUser = localStorage.getItem('user');
+            if (storedUser) {
+                try {
+                    setUser(JSON.parse(storedUser));
+                } catch (e) {
+                    console.error("Failed to parse user data", e);
+                    setUser(null);
+                }
+            } else {
+                setUser(null);
+            }
         };
 
         checkAuth();
-        // Listener for storage events (optional, for multi-tab sync)
+
+        // Listen for storage events (multi-tab) AND custom auth-change events (same-tab)
         window.addEventListener('storage', checkAuth);
-        return () => window.removeEventListener('storage', checkAuth);
+        window.addEventListener('auth-change', checkAuth);
+
+        return () => {
+            window.removeEventListener('storage', checkAuth);
+            window.removeEventListener('auth-change', checkAuth);
+        };
     }, []);
 
     // Close mobile menu on route change
@@ -50,7 +67,9 @@ export function OfficialHeader() {
     const resetFont = () => setFontSize(1);
 
     const handleLogout = () => {
-        // ... existing code ...
+        api.logout();
+        setUser(null);
+        router.push('/login');
     };
 
     return (

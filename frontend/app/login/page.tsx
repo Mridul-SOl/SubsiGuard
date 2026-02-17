@@ -30,6 +30,9 @@ export default function LoginPage() {
                 localStorage.setItem("token", response.token);
                 localStorage.setItem("user", JSON.stringify(response.user));
 
+                // Notify other components (Header)
+                window.dispatchEvent(new Event("auth-change"));
+
                 toast.success("Login successful", {
                     description: `Welcome back, ${response.user.full_name || response.user.username}`,
                 });
