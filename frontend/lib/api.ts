@@ -5,44 +5,15 @@ export interface UploadResponse {
     file_id: string;
     filename: string;
     total_rows: number;
-    preview_rows: Record<string, any>[];
+    preview_rows: Record<string, unknown>[];
     message: string;
 }
 
-export interface FraudCase {
-    id: string;
-    beneficiary_name: string;
-    scheme: string;
-    amount: number;
-    risk_score: number;
-    fraud_reasons: string[];
-}
-
-export interface AnalysisSummary {
-    total_leakage_amount: number;
-    flagged_count: number;
-    total_records: number;
-    average_risk_score: number;
-    top_risk_state: string;
-}
-
-export interface AnalysisReportDetails {
-    executive_summary: string;
-    key_findings: string[];
-    recommendations: string[];
-    conclusion: string;
-}
-
-export interface AnalysisResult {
-    file_id: string;
-    summary: AnalysisSummary;
-    cases: FraudCase[];
-    report_details?: AnalysisReportDetails;
-}
+// ... (skipping some lines) ...
 
 export interface SyntheticDataResponse {
     count: number;
-    data: Record<string, any>[];
+    data: Record<string, unknown>[];
 }
 
 export interface LoginResponse {
