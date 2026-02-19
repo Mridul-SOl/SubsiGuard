@@ -13,6 +13,8 @@ async def get_results(file_id: str, session: AsyncSession = Depends(get_db)):
     if results is None:
         raise HTTPException(status_code=404, detail="Results not found. Please analyze the file first.")
 
+    return results
+
 @router.get("/reports/summary")
 async def get_reports_summary(session: AsyncSession = Depends(get_db)):
     all_results = await data_storage.get_all_results(session)

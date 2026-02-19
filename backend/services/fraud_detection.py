@@ -30,15 +30,24 @@ class FraudDetector:
             if is_fraud:
                 flagged_count += 1
             
-            # Use the statistical score as the fraud score (clamped 0-1)
-            normalized_score = scores[idx]
-            normalized_score = max(0.0, min(1.0, normalized_score))
+            # Calculate fraud score
+            stat_score = scores[idx]
+
+            # Base score from statistical analysis
+            final_score = stat_score
+
+            # Boost score if rules are violated
+            if len(reasons) > 0:
+                # If there are rule violations, ensure high risk score (at least 0.9)
+                final_score = max(final_score, 0.9)
+
+            final_score = max(0.0, min(1.0, final_score))
 
             if is_fraud:
                  results.append(FraudRecord(
                     record_id=idx,
                     data=row.to_dict(),
-                    fraud_score=normalized_score,
+                    fraud_score=final_score,
                     is_fraud=True,
                     reasons=reasons
                 ))
@@ -108,37 +117,34 @@ class FraudDetector:
     def _apply_rules(self, df: pd.DataFrame) -> Dict[int, List[str]]:
         flags = {}
         
-        # Pre-calculate implementation for speed
+        # Rule 1: Duplicate Aadhaar
         if 'aadhaar' in df.columns:
-            aadhaar_counts = df['aadhaar'].value_counts()
-        else:
-            aadhaar_counts = {}
-        
-        for idx, row in df.iterrows():
-            reasons = []
-            
-            # Rule 1: Duplicate Aadhaar
-            if 'aadhaar' in row and aadhaar_counts.get(row['aadhaar'], 0) > 1:
-                reasons.append("Duplicate Aadhaar Number")
-            
-            # Rule 2: High Income Threshold
-            try:
-                income = float(row.get('income', 0))
-                if income > 250000:
-                    reasons.append("Income exceeds threshold (₹2.5L)")
-            except ValueError:
-                pass
-            
-            # Rule 3: High Claim Amount (Simple threshold for MVP)
-            try:
-                 amount = float(row.get('amount', 0))
-                 if amount > 50000: # Arbitrary high amount for MVP
-                      reasons.append("Unusually high claim amount (>₹50k)")
-            except ValueError:
-                 pass
+            # duplicates is a boolean Series
+            duplicates = df.duplicated(subset=['aadhaar'], keep=False)
+            # Filter where True
+            dup_indices = df.index[duplicates]
+            for idx in dup_indices:
+                if idx not in flags: flags[idx] = []
+                flags[idx].append("Duplicate Aadhaar Number")
 
-            if reasons:
-                flags[idx] = reasons
+        # Rule 2: High Income Threshold
+        if 'income' in df.columns:
+            # Convert to numeric, errors='coerce' turns non-numeric to NaN
+            income = pd.to_numeric(df['income'], errors='coerce')
+            high_income = income > 250000
+            high_inc_indices = df.index[high_income]
+            for idx in high_inc_indices:
+                if idx not in flags: flags[idx] = []
+                flags[idx].append("Income exceeds threshold (₹2.5L)")
+
+        # Rule 3: High Claim Amount (Simple threshold for MVP)
+        if 'amount' in df.columns:
+            amount = pd.to_numeric(df['amount'], errors='coerce')
+            high_amount = amount > 50000
+            high_amt_indices = df.index[high_amount]
+            for idx in high_amt_indices:
+                if idx not in flags: flags[idx] = []
+                flags[idx].append("Unusually high claim amount (>₹50k)")
                 
         return flags
 
